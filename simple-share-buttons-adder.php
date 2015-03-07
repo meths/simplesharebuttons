@@ -361,6 +361,9 @@ GNU General Public License for more details.
 
 		// update version number
 		update_option('ssba_version', '4.7');
+
+		// Rebuild cache after updates
+		get_ssba_settings(true);
 	}
 
 	// --------- SETTINGS PAGE ------------ //
@@ -450,6 +453,9 @@ GNU General Public License for more details.
 
 				// show settings saved message
 				$htmlSettingsSaved = '<div id="setting-error-settings_updated" class="updated settings-error"><p><strong>Your settings have been saved. <a href="' . site_url() . '">Visit your site</a> to see how your buttons look!</strong></p></div>';
+
+				// Rebuild cache after updates
+				get_ssba_settings(true);
 			}
 		}
 
@@ -609,21 +615,28 @@ GNU General Public License for more details.
 	// --------- SHARE BUTTONS ------------ //
 
 	// return ssba settings
-	function get_ssba_settings() {
+	function get_ssba_settings($invalidate_cache = false) {
 
-		// globals
-		global $wpdb;
+		// Test for cached settings
+		$arrSettings = wp_cache_get('ssba_settings');
 
-		// query the db for current ssba settings
-		$arrSettings = $wpdb->get_results("SELECT option_name, option_value
-											 FROM $wpdb->options
-											WHERE option_name LIKE 'ssba_%'");
+		if ( (false === $arrSettings) || $invalidate_cache ) {
 
-		// loop through each setting in the array
-		foreach ($arrSettings as $setting) {
+			// globals
+			global $wpdb;
 
-			// add each setting to the array by name
-			$arrSettings[$setting->option_name] =  $setting->option_value;
+			// query the db for current ssba settings
+			$options_query = "SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE 'ssba_%'";
+			$results = $wpdb->get_results($options_query);
+
+			// loop through each setting in the array
+			foreach ($results as $result) {
+				// add each setting to the array by name
+				$arrSettings[$result->option_name] =  $result->option_value;
+			}
+
+			// Cache the results
+			wp_cache_set('ssba_settings', $arrSettings);
 		}
 
 		// return
