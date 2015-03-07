@@ -330,15 +330,9 @@ GNU General Public License for more details.
 		// query the db for current ssba settings
 		$arrSettings = get_ssba_settings();
 
-<<<<<<< HEAD
-		// check if not yet updated to 4.6
-		if ($arrSettings['ssba_version'] != '4.6') {
-
-=======
 		// check if not yet updated to 4.7
 		if ($arrSettings['ssba_version'] != '4.7') {
 
->>>>>>> origin/4.8
 			// run the upgrade function
 			upgrade_ssba($arrSettings);
 		}
